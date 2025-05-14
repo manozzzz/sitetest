@@ -580,16 +580,19 @@
                 
                 // Create download link for the encrypted data
                 const encryptedData = encryptResult.encrypted;
-                const dataBlob = new Blob([encryptedData], { type: 'text/plain' });
-                const url = URL.createObjectURL(dataBlob);
+                const blob = new Blob([encryptedData], { type: 'application/octet-stream' });
+                const url = window.URL.createObjectURL(blob);
                 
                 const a = document.createElement('a');
+                a.style.display = 'none';
                 a.href = url;
                 a.download = `${currentFile}_modified.dat`;
                 document.body.appendChild(a);
                 a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);
                 
                 // Update status
                 originalData = JSON.parse(JSON.stringify(modifiedData));
@@ -602,6 +605,23 @@
             } catch (error) {
                 console.error("Error processing file:", error);
                 statusMessage.textContent = "Error: " + error.message;
+                
+                // If API fails, offer the JSON as fallback
+                if (confirm("Encryption failed. Download as JSON instead?")) {
+                    const dataStr = JSON.stringify(modifiedData, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `${currentFile}_modified.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
             } finally {
                 hideLoading();
             }
