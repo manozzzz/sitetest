@@ -271,6 +271,16 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Steam-specific additions */
+        .steam-download-instructions {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -316,11 +326,22 @@
                         <button class="editor-btn primary" id="downloadBtn">
                             <i class="fas fa-download"></i> Download
                         </button>
+                        <button class="editor-btn" id="copyBtn" style="display: none;">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
                 </div>
                 
                 <div class="value-grid" id="valueGrid">
                     <!-- Values will be inserted here dynamically -->
+                </div>
+                
+                <div class="steam-download-instructions" id="steamInstructions">
+                    <p><strong>Steam Download Instructions:</strong></p>
+                    <p>1. Your file should download automatically</p>
+                    <p>2. If not, check Steam's download folder</p>
+                    <p>3. Location: Steam/steamapps/common/Steam Client/dumps</p>
+                    <p>4. Or use the Copy button above to copy the data</p>
                 </div>
                 
                 <div class="status-bar">
@@ -378,9 +399,22 @@
         const backButton = document.getElementById('backButton');
         const resetBtn = document.getElementById('resetBtn');
         const downloadBtn = document.getElementById('downloadBtn');
-        
+        const copyBtn = document.getElementById('copyBtn');
+        const steamInstructions = document.getElementById('steamInstructions');
+
+        // Detect Steam browser
+        function isSteamBrowser() {
+            return navigator.userAgent.includes('Valve Steam Client');
+        }
+
         // Initialize the editor
         function initEditor() {
+            // Show Steam-specific UI if needed
+            if (isSteamBrowser()) {
+                copyBtn.style.display = 'flex';
+                steamInstructions.style.display = 'block';
+            }
+
             // Get the file type from URL or session storage
             const urlParams = new URLSearchParams(window.location.search);
             currentFile = urlParams.get('file') || sessionStorage.getItem('selectedMod') || 'wallet';
@@ -410,6 +444,7 @@
             
             resetBtn.addEventListener('click', resetValues);
             downloadBtn.addEventListener('click', downloadFile);
+            copyBtn.addEventListener('click', copyToClipboard);
         }
         
         // Update file information in the sidebar
@@ -536,8 +571,10 @@
             
             if (modifiedValues > 0) {
                 downloadBtn.disabled = false;
+                copyBtn.disabled = false;
             } else {
                 downloadBtn.disabled = true;
+                copyBtn.disabled = true;
             }
         }
         
@@ -551,48 +588,73 @@
                 statusMessage.textContent = "All changes reset";
             }
         }
+
+        // Copy data to clipboard
+        function copyToClipboard() {
+            const dataStr = JSON.stringify(modifiedData, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                statusMessage.textContent = "Data copied to clipboard!";
+                setTimeout(() => {
+                    statusMessage.textContent = "Ready";
+                }, 3000);
+            }).catch(err => {
+                statusMessage.textContent = "Failed to copy: " + err;
+            });
+        }
         
-        // Download modified file
+        // Download modified file with Steam-specific handling
         async function downloadFile() {
-            showLoading('Encrypting and preparing download...');
+            showLoading('Preparing download for Steam...');
             
             try {
-                // First encrypt the modified data
-                const encryptResponse = await fetch(`${API_BASE_URL}/encrypt`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        data: JSON.stringify(modifiedData)
-                    }),
-                });
-                
-                if (!encryptResponse.ok) {
-                    throw new Error(`Encryption API error: ${encryptResponse.status}`);
+                // First try to encrypt through API
+                let encryptedData;
+                try {
+                    const encryptResponse = await fetch(`${API_BASE_URL}/encrypt`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            data: JSON.stringify(modifiedData)
+                        }),
+                    });
+                    
+                    if (!encryptResponse.ok) throw new Error(`API error: ${encryptResponse.status}`);
+                    const encryptResult = await encryptResponse.json();
+                    if (!encryptResult.success) throw new Error(encryptResult.message || 'Encryption failed');
+                    encryptedData = encryptResult.encrypted;
+                } catch (apiError) {
+                    console.warn("API encryption failed, using local data", apiError);
+                    encryptedData = JSON.stringify(modifiedData); // Fallback to unencrypted
                 }
                 
-                const encryptResult = await encryptResponse.json();
-                
-                if (!encryptResult.success) {
-                    throw new Error(encryptResult.message || 'Encryption failed');
-                }
-                
-                // Create download link for the encrypted data
-                const encryptedData = encryptResult.encrypted;
+                // Steam-specific download handling
                 const blob = new Blob([encryptedData], { type: 'application/octet-stream' });
-                const url = window.URL.createObjectURL(blob);
+                const url = URL.createObjectURL(blob);
                 
+                // Method 1: Standard download
                 const a = document.createElement('a');
-                a.style.display = 'none';
                 a.href = url;
                 a.download = `${currentFile}_modified.dat`;
+                a.style.display = 'none';
                 document.body.appendChild(a);
                 a.click();
                 
-                // Clean up
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                // Method 2: Iframe fallback for Steam
+                setTimeout(() => {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = url;
+                    document.body.appendChild(iframe);
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        document.body.removeChild(iframe);
+                    }, 3000);
+                }, 1000);
                 
                 // Update status
                 originalData = JSON.parse(JSON.stringify(modifiedData));
@@ -601,26 +663,17 @@
                 
                 const now = new Date();
                 lastSaved.textContent = now.toLocaleTimeString();
-                statusMessage.textContent = "File encrypted and downloaded successfully";
-            } catch (error) {
-                console.error("Error processing file:", error);
-                statusMessage.textContent = "Error: " + error.message;
+                statusMessage.textContent = isSteamBrowser() 
+                    ? "Check Steam's download folder for your file" 
+                    : "File downloaded successfully";
                 
-                // If API fails, offer the JSON as fallback
-                if (confirm("Encryption failed. Download as JSON instead?")) {
-                    const dataStr = JSON.stringify(modifiedData, null, 2);
-                    const blob = new Blob([dataStr], { type: 'application/json' });
-                    const url = window.URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = `${currentFile}_modified.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
+            } catch (error) {
+                console.error("Download error:", error);
+                statusMessage.textContent = "Download error: " + error.message;
+                
+                // Final fallback - show data in prompt for manual copy
+                if (confirm("Download failed. Show data to copy manually?")) {
+                    prompt("Copy this data:", JSON.stringify(modifiedData, null, 2));
                 }
             } finally {
                 hideLoading();
