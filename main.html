@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subway Surfers Mod | Game File Modifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF5722;
+            --secondary: #FF9800;
+            --dark: #0a0a12;
+            --light: #f5f5f5;
+            --accent: #00BCD4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: var(--light);
+            overflow-x: hidden;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 87, 34, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 152, 0, 0.15) 0%, transparent 20%),
+                linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%);
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Animated background elements */
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .bg-element {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeIn 0.8s ease forwards 0.3s;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 87, 34, 0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            text-align: center;
+            width: 100%;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: scaleIn 0.8s ease forwards 0.6s;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 220px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 45%,
+                rgba(255, 255, 255, 0.03) 50%,
+                rgba(255, 255, 255, 0) 55%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        .feature-card:nth-child(1) { animation: fadeUp 0.6s ease forwards 0.9s; }
+        .feature-card:nth-child(2) { animation: fadeUp 0.6s ease forwards 1.1s; }
+        .feature-card:nth-child(3) { animation: fadeUp 0.6s ease forwards 1.3s; }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 152, 0, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        
+        .start-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: fadeIn 0.8s ease forwards 1.5s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 87, 34, 0.5);
+        }
+        
+        .start-btn:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .action-btn:nth-child(1) { animation: fadeUp 0.6s ease forwards 1.7s; }
+        .action-btn:nth-child(2) { animation: fadeUp 0.6s ease forwards 1.9s; }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .discord-btn {
+            background: #5865F2;
+        }
+        
+        .discord-btn:hover {
+            background: #4752C4;
+        }
+        
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            opacity: 0.5;
+            font-size: 0.9rem;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards 2.1s;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        @keyframes scaleIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .logo { font-size: 2rem; }
+            .tagline { font-size: 1rem; }
+            .features { flex-direction: column; align-items: center; }
+            .feature-card { width: 100%; max-width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background elements -->
+    <div class="bg-elements">
+        <div class="bg-element" style="width: 300px; height: 300px; top: 10%; left: 5%; animation-duration: 20s;"></div>
+        <div class="bg-element" style="width: 200px; height: 200px; top: 60%; left: 80%; animation-duration: 25s; animation-delay: -5s;"></div>
+        <div class="bg-element" style="width: 150px; height: 150px; top: 30%; left: 70%; animation-duration: 18s; animation-delay: -3s;"></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1 class="logo">SUBWAY MOD</h1>
+            <p class="tagline">Advanced game file modifications for Subway Surfers. Unlock everything with our secure tools.</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <h3 class="feature-title">Game File Editing</h3>
+                    <p class="feature-desc">Direct modification of game configuration files to unlock all premium features without detection.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="feature-title">Currency Injection</h3>
+                    <p class="feature-desc">Modify your save files to inject unlimited coins and keys with our specialized tools.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <h3 class="feature-title">Skin Unlocks</h3>
+                    <p class="feature-desc">Access all character skins and hoverboards by editing the game's asset files directly.</p>
+                </div>
+            </div>
+            
+            <button class="start-btn" id="startButton">
+                <i class="fas fa-arrow-right"></i> START MODDING
+            </button>
+            
+            <div class="action-buttons">
+                <button class="action-btn discord-btn">
+                    <i class="fab fa-discord"></i> Discord
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-question-circle"></i> Why Us?
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Subway Mod. This is a fan project. Not affiliated with Subway Surfers or Kiloo.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Generate random background elements
+        function createBgElements() {
+            const bgContainer = document.querySelector('.bg-elements');
+            for (let i = 0; i < 8; i++) {
+                const size = Math.random() * 100 + 50;
+                const element = document.createElement('div');
+                element.className = 'bg-element';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.top = `${Math.random() * 100}%`;
+                element.style.left = `${Math.random() * 100}%`;
+                element.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                element.style.animationDelay = `-${Math.random() * 10}s`;
+                element.style.opacity = Math.random() * 0.1 + 0.03;
+                bgContainer.appendChild(element);
+            }
+        }
+        
+        // Initialize background elements
+        createBgElements();
+        
+        // Start button redirect
+        document.getElementById('startButton').addEventListener('click', () => {
+            // Add loading animation
+            const btn = document.getElementById('startButton');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> LOADING...';
+            btn.style.pointerEvents = 'none';
+            
+            // Redirect after delay
+            setTimeout(() => {
+                window.location.href = 'mainsite.html';
+            }, 1500);
+        });
+        
+        // Smooth hover effects for feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-10px)';
+                card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+            });
+        });
+    </script>
+</body>
+</html>

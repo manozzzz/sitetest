@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subway Surfers Mod | File Editor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF5722;
+            --secondary: #FF9800;
+            --dark: #0a0a12;
+            --light: #f5f5f5;
+            --accent: #00BCD4;
+            --success: #4CAF50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: var(--light);
+            overflow-x: hidden;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 87, 34, 0.15) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 152, 0, 0.15) 0%, transparent 20%),
+                linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%);
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .editor-container {
+            display: flex;
+            gap: 2rem;
+            flex-grow: 1;
+        }
+        
+        .file-info {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .file-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .file-type {
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .file-stats {
+            margin-top: 2rem;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .editor-content {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        
+        .editor-title {
+            font-size: 1.3rem;
+            color: var(--secondary);
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .editor-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .editor-btn.primary {
+            background: var(--primary);
+        }
+        
+        .editor-btn.success {
+            background: var(--success);
+        }
+        
+        .editor-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 60vh;
+            padding-right: 0.5rem;
+        }
+        
+        .value-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .value-item:hover {
+            border-color: rgba(255, 152, 0, 0.3);
+        }
+        
+        .value-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .value-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .value-type {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 0.3rem;
+        }
+        
+        .status-bar {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            gap: 1rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .file-info {
+                width: 100%;
+            }
+            
+            .value-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SUBWAY MOD</div>
+            <button class="back-btn" id="backButton">
+                <i class="fas fa-arrow-left"></i> Back to Selection
+            </button>
+        </header>
+        
+        <div class="editor-container">
+            <div class="file-info">
+                <div class="file-icon">
+                    <i class="fas fa-wallet" id="fileIcon"></i>
+                </div>
+                <h2 class="file-name" id="fileName">Wallet</h2>
+                <div class="file-type">Game Data File</div>
+                
+                <div class="file-stats">
+                    <div class="stat">
+                        <span>File Type:</span>
+                        <span id="fileTypeStat">JSON</span>
+                    </div>
+                    <div class="stat">
+                        <span>Values:</span>
+                        <span id="valuesCount">0</span>
+                    </div>
+                    <div class="stat">
+                        <span>Modified:</span>
+                        <span id="modifiedCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="editor-content">
+                <div class="editor-header">
+                    <h3 class="editor-title">EDIT VALUES</h3>
+                    <div class="editor-actions">
+                        <button class="editor-btn" id="resetBtn">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button class="editor-btn primary" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="value-grid" id="valueGrid">
+                    <!-- Values will be inserted here dynamically -->
+                </div>
+                
+                <div class="status-bar">
+                    <div id="statusMessage">Ready</div>
+                    <div id="lastSaved">Not downloaded yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
+        <div id="loadingText">Processing file...</div>
+    </div>
+    
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://subway-surfers-api.vercel.app/api';
+        const FILE_TYPES = {
+            wallet: {
+                name: "Wallet",
+                icon: "fa-wallet",
+                fields: ["coins", "keys", "scoreBooster", "mysteryBoxes"]
+            },
+            boards: {
+                name: "Boards Inventory",
+                icon: "fa-skating",
+                fields: ["unlockedBoards", "boardStats", "selectedBoard"]
+            },
+            characters: {
+                name: "Character Inventory",
+                icon: "fa-users",
+                fields: ["unlockedCharacters", "characterOutfits", "selectedCharacter"]
+            }
+        };
+        
+        // Global variables
+        let currentFile = null;
+        let originalData = null;
+        let modifiedData = null;
+        let modifiedValues = 0;
+        let encryptedOriginalData = null;
+        
+        // DOM Elements
+        const fileIcon = document.getElementById('fileIcon');
+        const fileName = document.getElementById('fileName');
+        const fileTypeStat = document.getElementById('fileTypeStat');
+        const valuesCount = document.getElementById('valuesCount');
+        const modifiedCount = document.getElementById('modifiedCount');
+        const valueGrid = document.getElementById('valueGrid');
+        const statusMessage = document.getElementById('statusMessage');
+        const lastSaved = document.getElementById('lastSaved');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const backButton = document.getElementById('backButton');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // Initialize the editor
+        function initEditor() {
+            // Get the file type from URL or session storage
+            const urlParams = new URLSearchParams(window.location.search);
+            currentFile = urlParams.get('file') || sessionStorage.getItem('selectedMod') || 'wallet';
+            
+            if (!FILE_TYPES[currentFile]) {
+                currentFile = 'wallet';
+            }
+            
+            // Update UI based on file type
+            updateFileInfo();
+            
+            // Check if we have encrypted data in session storage
+            const encryptedData = sessionStorage.getItem('encryptedData');
+            if (encryptedData) {
+                encryptedOriginalData = encryptedData;
+                loadFileData(encryptedData);
+            } else {
+                // For demo purposes, we'll use mock data if no file was uploaded
+                statusMessage.textContent = "No file loaded - using demo data";
+                loadDemoData();
+            }
+            
+            // Set up event listeners
+            backButton.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            resetBtn.addEventListener('click', resetValues);
+            downloadBtn.addEventListener('click', downloadFile);
+        }
+        
+        // Update file information in the sidebar
+        function updateFileInfo() {
+            const fileType = FILE_TYPES[currentFile];
+            fileName.textContent = fileType.name;
+            fileIcon.className = `fas ${fileType.icon}`;
+        }
+        
+        // Load and decrypt file data
+        async function loadFileData(encryptedData) {
+            showLoading('Decrypting file data...');
+            
+            try {
+                // Send to decryption API
+                const response = await fetch(`${API_BASE_URL}/decrypt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: encryptedData
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Decryption failed');
+                }
+                
+                originalData = JSON.parse(result.decrypted);
+                modifiedData = JSON.parse(JSON.stringify(originalData));
+                
+                renderValues();
+                updateStats();
+                statusMessage.textContent = "File decrypted successfully";
+            } catch (error) {
+                console.error("Error decrypting file:", error);
+                statusMessage.textContent = "Error decrypting file: " + error.message;
+                // Fall back to demo data
+                loadDemoData();
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Load demo data when no file is uploaded
+        function loadDemoData() {
+            originalData = getMockData(currentFile);
+            modifiedData = JSON.parse(JSON.stringify(originalData));
+            renderValues();
+            updateStats();
+        }
+        
+        // Render all editable values
+        function renderValues() {
+            valueGrid.innerHTML = '';
+            modifiedValues = 0;
+            
+            const fileType = FILE_TYPES[currentFile];
+            
+            fileType.fields.forEach(field => {
+                if (modifiedData[field] !== undefined) {
+                    createValueInput(field, modifiedData[field]);
+                }
+            });
+            
+            // Also render any additional fields in the data
+            for (const [key, value] of Object.entries(modifiedData)) {
+                if (!fileType.fields.includes(key)) {
+                    createValueInput(key, value);
+                }
+            }
+        }
+        
+        // Create an input element for a value
+        function createValueInput(name, value) {
+            const valueItem = document.createElement('div');
+            valueItem.className = 'value-item';
+            
+            const valueType = typeof value;
+            const inputType = valueType === 'number' ? 'number' : 'text';
+            
+            valueItem.innerHTML = `
+                <div class="value-name">${name}</div>
+                <input type="${inputType}" class="value-input" 
+                       data-field="${name}" 
+                       value="${value}" 
+                       ${valueType === 'object' ? 'disabled' : ''}>
+                <div class="value-type">${valueType}</div>
+            `;
+            
+            // Add event listener to track changes
+            const input = valueItem.querySelector('input');
+            if (input) {
+                input.addEventListener('change', (e) => {
+                    const newValue = inputType === 'number' ? 
+                        parseFloat(e.target.value) : e.target.value;
+                    
+                    if (newValue != originalData[name]) {
+                        modifiedData[name] = newValue;
+                        if (newValue === originalData[name]) {
+                            modifiedValues--;
+                        } else if (e.target.value != modifiedData[name]) {
+                            modifiedValues++;
+                        }
+                        updateStats();
+                    }
+                });
+            }
+            
+            valueGrid.appendChild(valueItem);
+        }
+        
+        // Update statistics in the sidebar
+        function updateStats() {
+            valuesCount.textContent = Object.keys(modifiedData).length;
+            modifiedCount.textContent = modifiedValues;
+            
+            if (modifiedValues > 0) {
+                downloadBtn.disabled = false;
+            } else {
+                downloadBtn.disabled = true;
+            }
+        }
+        
+        // Reset all values to original
+        function resetValues() {
+            if (confirm('Are you sure you want to reset all changes?')) {
+                modifiedData = JSON.parse(JSON.stringify(originalData));
+                modifiedValues = 0;
+                renderValues();
+                updateStats();
+                statusMessage.textContent = "All changes reset";
+            }
+        }
+        
+        // Download modified file
+        async function downloadFile() {
+            showLoading('Encrypting and preparing download...');
+            
+            try {
+                // First encrypt the modified data
+                const encryptResponse = await fetch(`${API_BASE_URL}/encrypt`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: JSON.stringify(modifiedData)
+                    }),
+                });
+                
+                if (!encryptResponse.ok) {
+                    throw new Error(`Encryption API error: ${encryptResponse.status}`);
+                }
+                
+                const encryptResult = await encryptResponse.json();
+                
+                if (!encryptResult.success) {
+                    throw new Error(encryptResult.message || 'Encryption failed');
+                }
+                
+                // Create download link for the encrypted data
+                const encryptedData = encryptResult.encrypted;
+                const dataBlob = new Blob([encryptedData], { type: 'text/plain' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${currentFile}_modified.dat`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Update status
+                originalData = JSON.parse(JSON.stringify(modifiedData));
+                modifiedValues = 0;
+                updateStats();
+                
+                const now = new Date();
+                lastSaved.textContent = now.toLocaleTimeString();
+                statusMessage.textContent = "File encrypted and downloaded successfully";
+            } catch (error) {
+                console.error("Error processing file:", error);
+                statusMessage.textContent = "Error: " + error.message;
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Show loading overlay
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loadingOverlay.style.display = 'flex';
+        }
+        
+        // Hide loading overlay
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+        
+        // Mock data for demonstration
+        function getMockData(fileType) {
+            const mockData = {
+                wallet: {
+                    coins: 1250,
+                    keys: 3,
+                    scoreBooster: 2,
+                    mysteryBoxes: 1
+                },
+                boards: {
+                    unlockedBoards: ["Monster", "Hot Rod", "Barefoot"],
+                    selectedBoard: "Monster",
+                    boardStats: {
+                        "Monster": { speed: 1.2, jump: 1.1 },
+                        "Hot Rod": { speed: 1.3, jump: 1.0 },
+                        "Barefoot": { speed: 1.0, jump: 1.4 }
+                    }
+                },
+                characters: {
+                    unlockedCharacters: ["Jake", "Fresh", "Yutani"],
+                    selectedCharacter: "Jake",
+                    characterOutfits: {
+                        "Jake": ["Default", "Holiday"],
+                        "Fresh": ["Default", "Basketball"],
+                        "Yutani": ["Default"]
+                    }
+                }
+            };
+            
+            return mockData[fileType] || mockData.wallet;
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initEditor);
+    </script>
+</body>
+</html>
